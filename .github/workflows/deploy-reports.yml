@@ -1,0 +1,161 @@
+name: Deploy Playwright Reports
+
+on:
+  workflow_run:
+    workflows: ["Playwright Tests"]
+    types:
+      - completed
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Download Playwright Reports
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Get artifacts from the completed workflow
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }}
+            });
+            
+            console.log('Found artifacts:', artifacts.data.artifacts.map(a => a.name));
+            
+            // Create output directory
+            if (!fs.existsSync('_site')) {
+              fs.mkdirSync('_site');
+            }
+            
+            // Create .nojekyll file to disable Jekyll
+            fs.writeFileSync('_site/.nojekyll', '');
+            
+            // Download and extract each Playwright report artifact
+            for (const artifact of artifacts.data.artifacts) {
+              if (artifact.name.startsWith('playwright-report-')) {
+                console.log(`Downloading ${artifact.name}...`);
+                
+                try {
+                  const download = await github.rest.actions.downloadArtifact({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    artifact_id: artifact.id,
+                    archive_format: 'zip'
+                  });
+                  
+                  // Save the artifact
+                  fs.writeFileSync(`${artifact.name}.zip`, Buffer.from(download.data));
+                  console.log(`Downloaded ${artifact.name}.zip`);
+                } catch (error) {
+                  console.error(`Failed to download ${artifact.name}:`, error);
+                }
+              }
+            }
+      
+      - name: Extract and prepare reports
+        run: |
+          mkdir -p _site
+          echo "" > _site/.nojekyll
+          
+          # Extract downloaded artifacts
+          for zip in playwright-report-*.zip; do
+            if [ -f "$zip" ]; then
+              dirname="${zip%.zip}"
+              mkdir -p "_site/$dirname"
+              unzip -q "$zip" -d "_site/$dirname"
+              echo "Extracted $zip to _site/$dirname"
+            fi
+          done
+          
+          # Create main index page
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>Playwright Test Reports</title>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <style>
+                  body { 
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                      margin: 40px auto; 
+                      max-width: 800px; 
+                      background: #f8f9fa;
+                  }
+                  .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+                  h1 { color: #2d3748; margin-bottom: 20px; }
+                  .report-link { 
+                      display: block; 
+                      padding: 15px; 
+                      margin: 10px 0; 
+                      background: #e2e8f0; 
+                      text-decoration: none; 
+                      border-radius: 6px; 
+                      color: #2d3748;
+                      border-left: 4px solid #4299e1;
+                      transition: all 0.2s;
+                  }
+                  .report-link:hover { 
+                      background: #cbd5e0; 
+                      border-left-color: #2b6cb0;
+                  }
+                  .timestamp { color: #718096; font-size: 0.9em; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>🎭 Playwright Test Reports</h1>
+                  <p class="timestamp">Generated: $(date)</p>
+                  <h2>Available Reports</h2>
+          EOF
+          
+          # Add links to all available reports
+          for dir in _site/playwright-report-*; do
+            if [ -d "$dir" ]; then
+              basename=$(basename "$dir")
+              echo "<a href='$basename/' class='report-link'>📊 $basename</a>" >> _site/index.html
+            fi
+          done
+          
+          # Add latest report link if chromium-20 exists
+          if [ -d "_site/playwright-report-20-chromium" ]; then
+            echo "<h2>Latest Report (Quick Access)</h2>" >> _site/index.html
+            echo "<a href='playwright-report-20-chromium/' class='report-link' style='border-left-color: #48bb78;'>🚀 Latest Report (Node 20 + Chromium)</a>" >> _site/index.html
+          fi
+          
+          echo "              </div>" >> _site/index.html
+          echo "          </body>" >> _site/index.html
+          echo "          </html>" >> _site/index.html
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
