@@ -2,6 +2,7 @@
   "name": "my-react-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://yashdaga17.github.io/playwright_testing",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -26,7 +27,9 @@
     "test:e2e:chromium": "playwright test --project=chromium",
     "test:e2e:firefox": "playwright test --project=firefox",
     "test:e2e:webkit": "playwright test --project=webkit",
-    "test:e2e:mobile": "playwright test --project=mobile-chrome,mobile-safari"
+    "test:e2e:mobile": "playwright test --project=mobile-chrome,mobile-safari",
+    "test:e2e:trace": "playwright test --trace=on",
+    "test:e2e:full": "playwright test && playwright show-report"
   },
   "eslintConfig": {
     "extends": [

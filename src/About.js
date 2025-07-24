@@ -45,6 +45,40 @@ function About() {
                             interactive functionality.
                         </p>
                     </section>
+
+                    <section className="about-card">
+                        <h3>🎭 Testing & Quality</h3>
+                        <p>
+                            This app is thoroughly tested with Playwright end-to-end tests covering:
+                        </p>
+                        <ul>
+                            <li><strong>Functionality:</strong> All todo operations work correctly</li>
+                            <li><strong>Accessibility:</strong> Screen reader and keyboard navigation support</li>
+                            <li><strong>Visual Regression:</strong> UI consistency across updates</li>
+                            <li><strong>Cross-Browser:</strong> Works on Chrome, Firefox, and Safari</li>
+                            <li><strong>Mobile Testing:</strong> Optimized for mobile devices</li>
+                        </ul>
+                        {window.location.hostname === 'yashdaga17.github.io' && (
+                            <p>
+                                <a
+                                    href="/playwright_testing/test-reports/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                        display: 'inline-block',
+                                        padding: '8px 16px',
+                                        background: '#4299e1',
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        borderRadius: '4px',
+                                        marginTop: '10px'
+                                    }}
+                                >
+                                    📊 View Live Test Reports
+                                </a>
+                            </p>
+                        )}
+                    </section>
                 </div>
             </div>
         </div>

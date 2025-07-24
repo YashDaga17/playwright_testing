@@ -1,6 +1,17 @@
-# Getting Started with Create React App
+# React Todo App with Playwright Testing
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a React Todo application with comprehensive Playwright end-to-end testing. The app is automatically deployed to GitHub Pages on every push to the main branch.
+
+🚀 **Live Demo**: [https://yashdaga17.github.io/playwright_testing/](https://yashdaga17.github.io/playwright_testing/)
+
+## Features
+
+- ✅ Create, edit, and delete todos
+- ✅ Mark todos as complete/incomplete
+- ✅ Filter todos (All, Active, Completed)
+- ✅ Responsive design
+- ✅ Comprehensive E2E testing with Playwright
+- ✅ Automated deployment to GitHub Pages
 
 ## Available Scripts
 
@@ -28,6 +39,69 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+## Playwright E2E Testing
+
+This project includes comprehensive end-to-end testing using Playwright. The tests cover:
+
+- ✅ Navigation functionality
+- ✅ Todo creation, editing, and deletion  
+- ✅ Todo completion toggling
+- ✅ Filtering functionality (All, Active, Completed)
+- ✅ Accessibility testing with axe-core
+- ✅ Visual regression testing
+- ✅ Multi-browser testing (Chromium, Firefox, WebKit)
+- ✅ Mobile browser testing
+
+### Playwright Commands
+
+```bash
+# Run all tests
+npm run test:e2e
+
+# Run tests in UI mode (interactive)
+npm run test:e2e:ui
+
+# Run tests in headed mode (visible browser)
+npm run test:e2e:headed
+
+# Run tests with debugger
+npm run test:e2e:debug
+
+# Show test reports
+npm run test:e2e:report
+
+# Run tests for CI with multiple reporters
+npm run test:e2e:ci
+
+# Run tests on specific browsers
+npm run test:e2e:chromium
+npm run test:e2e:firefox
+npm run test:e2e:webkit
+
+# Run mobile tests
+npm run test:e2e:mobile
+```
+
+### Test Structure
+
+- `tests/` - Contains all Playwright test files
+- `test-results/` - Contains test execution results and artifacts
+- `playwright-report/` - Contains HTML test reports
+
+### CI/CD Pipeline
+
+The project uses GitHub Actions for:
+
+1. **Continuous Testing**: Runs on every push and PR
+   - Multi-browser testing (Chromium, Firefox, WebKit)  
+   - Multi-Node.js version testing (18, 20)
+   - Visual regression testing on PRs
+   - Accessibility testing
+
+2. **Automatic Deployment**: Deploys to GitHub Pages on main branch
+   - Builds the React app
+   - Deploys to `https://yashdaga17.github.io/playwright_testing/`
 
 ### `npm run eject`
 

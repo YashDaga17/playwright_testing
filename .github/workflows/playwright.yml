@@ -64,6 +64,14 @@ jobs:
         path: test-results/
         retention-days: 30
 
+    - name: Upload blob report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: blob-report-${{ matrix.node-version }}-${{ matrix.browser }}
+        path: test-results/blob-report/
+        retention-days: 30
+
   # Separate job for visual regression tests
   visual-tests:
     timeout-minutes: 60
@@ -99,8 +107,221 @@ jobs:
         path: test-results/
         retention-days: 7
 
+  # Merge test reports and deploy to GitHub Pages
+  merge-reports:
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: always() && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: test-reports
+      url: ${{ steps.deployment.outputs.page_url }}test-reports/
+
+    steps:
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: Download all blob reports
+      uses: actions/download-artifact@v4
+      with:
+        path: all-blob-reports
+        pattern: blob-report-*
+        merge-multiple: true
+
+    - name: Download all HTML reports  
+      uses: actions/download-artifact@v4
+      with:
+        path: all-html-reports
+        pattern: playwright-report-*
+        merge-multiple: true
+
+    - name: Download all test results
+      uses: actions/download-artifact@v4
+      with:
+        path: all-test-results
+        pattern: test-results-*
+        merge-multiple: true
+
+    - name: Setup Node.js for report merging
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Playwright
+      run: npm install -g @playwright/test
+
+    - name: Merge blob reports
+      run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+    - name: Prepare comprehensive test report
+      run: |
+        mkdir -p _site/test-reports
+        
+        # Copy merged HTML report
+        if [ -d "playwright-report" ]; then
+          cp -r playwright-report/* _site/test-reports/
+        fi
+        
+        # Create test reports index page
+        cat > _site/test-reports/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Playwright Test Reports</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                    margin: 40px auto; 
+                    max-width: 1200px; 
+                    background: #f8f9fa;
+                    color: #2d3748;
+                }
+                .header { 
+                    background: white; 
+                    padding: 30px; 
+                    border-radius: 8px; 
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+                    margin-bottom: 20px;
+                }
+                .reports-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 20px;
+                    margin-top: 20px;
+                }
+                .report-card { 
+                    background: white; 
+                    padding: 20px; 
+                    border-radius: 8px; 
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    transition: transform 0.2s;
+                }
+                .report-card:hover {
+                    transform: translateY(-2px);
+                }
+                .report-link { 
+                    display: block; 
+                    padding: 15px; 
+                    margin: 10px 0; 
+                    background: #e2e8f0; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    color: #2d3748;
+                    border-left: 4px solid #4299e1;
+                    transition: all 0.2s;
+                }
+                .report-link:hover { 
+                    background: #cbd5e0; 
+                    border-left-color: #2b6cb0;
+                }
+                .primary-link {
+                    border-left-color: #48bb78 !important;
+                    background: #f0fff4 !important;
+                }
+                .timestamp { color: #718096; font-size: 0.9em; }
+                .stats { display: flex; gap: 20px; margin: 20px 0; }
+                .stat { text-align: center; }
+                .stat-number { font-size: 2em; font-weight: bold; color: #4299e1; }
+                .stat-label { color: #718096; }
+                h1 { color: #2d3748; margin-bottom: 10px; }
+                h2 { color: #4a5568; margin-top: 0; }
+                .badge { 
+                    display: inline-block; 
+                    padding: 4px 8px; 
+                    border-radius: 4px; 
+                    font-size: 0.8em; 
+                    font-weight: bold;
+                    margin-left: 10px;
+                }
+                .badge-success { background: #c6f6d5; color: #276749; }
+                .badge-info { background: #bee3f8; color: #2a69ac; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🎭 Playwright Test Reports</h1>
+                <p class="timestamp">Generated: $(date)</p>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number">6</div>
+                        <div class="stat-label">Total Tests</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Browsers</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">2</div>
+                        <div class="stat-label">Node Versions</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reports-grid">
+                <div class="report-card">
+                    <h2>📊 Main Report <span class="badge badge-success">Latest</span></h2>
+                    <p>Comprehensive test results with traces, screenshots, and videos</p>
+                    <a href="index.html" class="report-link primary-link">🚀 View Full Report</a>
+                </div>
+                
+                <div class="report-card">
+                    <h2>🔍 Test Traces</h2>
+                    <p>Interactive traces for debugging failed tests</p>
+                    <a href="index.html" class="report-link">🔍 Explore Traces</a>
+                </div>
+                
+                <div class="report-card">
+                    <h2>📱 Mobile Testing</h2>
+                    <p>Results from mobile Chrome and Safari testing</p>
+                    <a href="index.html" class="report-link">📱 Mobile Results</a>
+                </div>
+                
+                <div class="report-card">
+                    <h2>🌐 Cross-Browser</h2>
+                    <p>Chromium, Firefox, and WebKit test results</p>
+                    <a href="index.html" class="report-link">🌐 Browser Results</a>
+                </div>
+                
+                <div class="report-card">
+                    <h2>♿ Accessibility</h2>
+                    <p>Accessibility testing with axe-core integration</p>
+                    <a href="index.html#accessibility" class="report-link">♿ A11y Results</a>
+                </div>
+                
+                <div class="report-card">
+                    <h2>📸 Visual Testing</h2>
+                    <p>Visual regression testing and screenshots</p>
+                    <a href="index.html#visual" class="report-link">📸 Visual Diffs</a>
+                </div>
+            </div>
+            
+            <div class="header" style="margin-top: 40px;">
+                <h2>🔗 Quick Links</h2>
+                <a href="../" class="report-link">🏠 Back to React App</a>
+                <a href="https://github.com/YashDaga17/playwright_testing/actions" class="report-link">⚙️ GitHub Actions</a>
+            </div>
+        </body>
+        </html>
+        EOF
+
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: _site
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
   # Upload artifacts for potential Pages deployment
-  upload-reports:
+  upload-artifacts:
     needs: test
     runs-on: ubuntu-latest
     if: always() && github.ref == 'refs/heads/main'

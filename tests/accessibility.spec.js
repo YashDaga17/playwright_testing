@@ -6,7 +6,13 @@ test.describe('Accessibility', () => {
     });
 
     test('should have proper heading structure', async ({ page }) => {
-        await expect(page.locator('h1')).toBeVisible();
+        // Check that navigation heading is visible
+        await expect(page.locator('.nav-brand h1')).toBeVisible();
+        await expect(page.locator('.nav-brand h1')).toHaveText('My Todo App');
+
+        // Check that home section heading is visible
+        await expect(page.locator('.hero h1')).toBeVisible();
+        await expect(page.locator('.hero h1')).toHaveText('Welcome to My Todo App');
 
         // Navigate to todo section
         await page.click('button:has-text("Todo List")');
@@ -15,7 +21,7 @@ test.describe('Accessibility', () => {
         // Navigate to about section
         await page.click('button:has-text("About")');
         await expect(page.locator('h2')).toBeVisible();
-        await expect(page.locator('h3')).toHaveCount(4);
+        await expect(page.locator('h3')).toHaveCount(5); // Updated count for new testing section
     });
 
     test('should have keyboard navigation support', async ({ page }) => {
