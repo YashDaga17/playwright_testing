@@ -45,7 +45,7 @@ export default defineConfig({
 
     webServer: {
         command: 'npm start',
-        url: 'http://localhost:3000',
+        url: process.env.CI ? 'http://localhost:3000/playwright_testing' : 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000,
     },
