@@ -4,6 +4,10 @@ This project is a React Todo application with comprehensive Playwright end-to-en
 
 🚀 **Live Demo**: [https://yashdaga17.github.io/playwright_testing/](https://yashdaga17.github.io/playwright_testing/)
 
+## 🧪 PR Workflow Testing
+
+This branch tests the updated PR workflow with timeout and port conflict fixes.
+
 ## Features
 
 - ✅ Create, edit, and delete todos
