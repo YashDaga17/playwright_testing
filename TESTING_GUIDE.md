@@ -5,11 +5,13 @@ This guide explains how to view and trace your Playwright test results both loca
 ## 🌐 GitHub Pages Test Reports
 
 ### Accessing Test Reports Online
+
 Your test reports are automatically deployed to GitHub Pages after each test run:
 
-**Live Test Reports**: https://yashdaga17.github.io/playwright_testing/test-reports/
+**Live Test Reports**: <https://yashdaga17.github.io/playwright_testing/test-reports/>
 
-### What's Available in GitHub Test Reports:
+### What's Available in GitHub Test Reports
+
 - ✅ **Interactive HTML Reports** with test results, screenshots, and videos
 - ✅ **Trace Files** for debugging failed tests step-by-step
 - ✅ **Visual Regression Diffs** showing UI changes
@@ -19,6 +21,7 @@ Your test reports are automatically deployed to GitHub Pages after each test run
 - ✅ **Performance Metrics** and timing information
 
 ### GitHub Actions Integration
+
 1. **View Workflow Runs**: Go to the [Actions tab](https://github.com/YashDaga17/playwright_testing/actions)
 2. **Click on "Playwright Tests"** workflow
 3. **Download Artifacts**: Each test run creates downloadable artifacts:
@@ -27,6 +30,7 @@ Your test reports are automatically deployed to GitHub Pages after each test run
    - `blob-report-*` - Mergeable report data for comprehensive reporting
 
 ### Trace Files in GitHub Actions
+
 - **Automatic Generation**: Traces are generated for failed tests and first retries
 - **Download & View**: Download trace.zip files from workflow artifacts
 - **Local Viewing**: Use `npx playwright show-trace trace.zip` to open traces locally
@@ -60,16 +64,18 @@ npm run test:e2e:report
 ### Understanding Trace Files
 
 **What are Traces?**
+
 - Interactive recordings of test execution
 - Step-by-step playback of user actions
 - Network requests, console logs, and DOM changes
 - Screenshots at each step
 
 **How to Use Traces:**
+
 1. **Run with trace**: `npm run test:e2e:trace`
 2. **Find trace files**: Located in `test-results/{test-name}/trace.zip`
 3. **Open trace**: `npx playwright show-trace path/to/trace.zip`
-4. **Interactive debugging**: 
+4. **Interactive debugging**:
    - Navigate through each step
    - Inspect DOM at any point
    - View network activity
@@ -78,6 +84,7 @@ npm run test:e2e:report
 ### Local Report Features
 
 When you run `npm run test:e2e:report`, you'll see:
+
 - 📊 **Test Results Dashboard**: Pass/fail status, duration, retries
 - 🖼️ **Screenshots**: Automatic screenshots on failure
 - 🎥 **Videos**: Full test recordings (when enabled)
@@ -87,12 +94,14 @@ When you run `npm run test:e2e:report`, you'll see:
 
 ## 🔍 Debugging Failed Tests
 
-### Step-by-Step Debugging Process:
+### Step-by-Step Debugging Process
 
 1. **Identify Failed Test**:
+
    ```bash
    npm run test:e2e:report
    ```
+
    - Open the HTML report
    - Look for red/failed tests
 
@@ -115,24 +124,28 @@ When you run `npm run test:e2e:report`, you'll see:
    - Fix accessibility issues if a11y tests fail
    - Update screenshots if visual regression fails
 
-### Common Debugging Scenarios:
+### Common Debugging Scenarios
 
 **Element Not Found**:
+
 - Use trace to see the actual page state
 - Check if selectors need updating
 - Verify element visibility and timing
 
 **Timing Issues**:
+
 - Look at network tab for slow requests
 - Check if elements load asynchronously
 - Add appropriate wait conditions
 
 **Visual Regression**:
+
 - Compare expected vs actual screenshots
 - Update screenshots if changes are intentional
 - Check for responsive design issues
 
 **Accessibility Failures**:
+
 - Review axe-core violations in the report
 - Check ARIA labels and semantic HTML
 - Verify keyboard navigation paths
@@ -147,12 +160,14 @@ Your workflows are configured to:
 4. **Deploy to Pages**: Merged comprehensive report to GitHub Pages
 5. **PR Comments**: Automatic test result summaries on pull requests
 
-### Workflow Files:
+### Workflow Files
+
 - `.github/workflows/playwright.yml` - Main testing workflow
 - `.github/workflows/deploy-with-reports.yml` - Combined app + report deployment
 - `.github/workflows/pr-preview.yml` - PR-specific testing
 
-### Viewing Results:
+### Viewing Results
+
 1. **GitHub Actions Tab**: Real-time test execution
 2. **Artifacts Download**: Individual browser/version reports
 3. **GitHub Pages**: Merged comprehensive reports
@@ -171,8 +186,10 @@ Your Playwright tests cover:
 
 ## 🛠️ Customizing Reports
 
-### Adding More Trace Information:
+### Adding More Trace Information
+
 Update `playwright.config.js`:
+
 ```javascript
 use: {
   trace: 'on', // Always generate traces
@@ -181,8 +198,10 @@ use: {
 }
 ```
 
-### Custom Reporters:
+### Custom Reporters
+
 Add to `playwright.config.js`:
+
 ```javascript
 reporter: [
   ['html'],

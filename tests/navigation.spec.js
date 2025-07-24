@@ -8,7 +8,7 @@ test.describe('Navigation', () => {
     test('should navigate to todo list section', async ({ page }) => {
         await page.click('button:has-text("Todo List")');
         await expect(page.locator('h2')).toContainText('My Todo List');
-        await expect(page.locator('.nav')).toContainText('Todo List');
+        await expect(page.locator('.navbar')).toContainText('Todo List');
     });
 
     test('should navigate to about section', async ({ page }) => {

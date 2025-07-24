@@ -20,13 +20,14 @@ test.describe('UI Components and Styling', () => {
         await page.click('button:has-text("About")');
 
         await expect(page.locator('.about-container')).toBeVisible();
-        await expect(page.locator('.about-card')).toHaveCount(4);
+        await expect(page.locator('.about-card')).toHaveCount(5);
 
         const aboutCards = page.locator('.about-card');
         await expect(aboutCards.nth(0).locator('h3')).toContainText('What is this app?');
         await expect(aboutCards.nth(1).locator('h3')).toContainText('Key Features');
         await expect(aboutCards.nth(2).locator('h3')).toContainText('How to Use');
         await expect(aboutCards.nth(3).locator('h3')).toContainText('Built With');
+        await expect(aboutCards.nth(4).locator('h3')).toContainText('🎭 Testing & Quality');
     });
 
     test('should have responsive design elements', async ({ page }) => {
