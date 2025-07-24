@@ -38,11 +38,6 @@ jobs:
     - name: Build application
       run: npm run build
 
-    - name: Start application in background
-      run: |
-        npm start &
-        npx wait-on http://localhost:3000/playwright_testing --timeout 60000
-
     - name: Run Playwright tests
       run: npx playwright test --project=${{ matrix.browser }}
       env:

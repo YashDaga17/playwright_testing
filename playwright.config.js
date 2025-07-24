@@ -46,7 +46,9 @@ export default defineConfig({
     webServer: {
         command: 'npm start',
         url: 'http://localhost:3000/playwright_testing',
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: true,
         timeout: 120 * 1000,
+        stderr: 'pipe',
+        stdout: 'pipe',
     },
 });
